@@ -177,6 +177,22 @@ class TriageTests(unittest.TestCase):
         self.assertEqual(child.returncode, 2)
         self.assertEqual(json.loads(child.stderr)["error"]["code"], "case_file_too_large")
 
+    def test_cli_rejects_deep_json_without_traceback_or_case_path(self):
+        env = os.environ.copy()
+        env["PYTHONPATH"] = str(ROOT / "src")
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "private-deep-case.json"
+            path.write_bytes(b"[" * 20000 + b"0" + b"]" * 20000)
+            child = subprocess.run(
+                [sys.executable, "-m", "rpk_php2shell_triage.cli", "assess", str(path)],
+                capture_output=True, text=True, timeout=10, env=env,
+            )
+        self.assertEqual(child.returncode, 2)
+        self.assertEqual(child.stdout, "")
+        self.assertEqual(json.loads(child.stderr)["error"]["code"], "case_file_json_error")
+        self.assertNotIn("private-deep-case", child.stderr)
+        self.assertNotIn("Traceback", child.stderr)
+
     def test_cli_case_file_errors_do_not_echo_private_path_or_bytes(self):
         env = os.environ.copy()
         env["PYTHONPATH"] = str(ROOT / "src")
@@ -258,6 +274,51 @@ class TriageTests(unittest.TestCase):
         self.assertEqual(replies[0]["error"]["code"], -32600)
         self.assertEqual(replies[1]["id"], 9)
         self.assertEqual(replies[1]["result"], {})
+
+    def test_stdio_deep_json_returns_parse_error_and_keeps_next_request(self):
+        env = os.environ.copy()
+        env["PYTHONPATH"] = str(ROOT / "src")
+        malformed = (
+            b'{"jsonrpc":"2.0","id":1,"method":"ping","params":'
+            + b"[" * 20000 + b"0" + b"]" * 20000 + b"}\n"
+        )
+        ping_two = b'{"jsonrpc":"2.0","id":2,"method":"ping"}\n'
+        child = subprocess.run(
+            [sys.executable, "-m", "rpk_php2shell_triage.mcp_stdio"],
+            input=malformed + ping_two,
+            capture_output=True, timeout=10, env=env,
+        )
+        self.assertEqual(child.returncode, 0)
+        replies = [json.loads(line) for line in child.stdout.splitlines()]
+        self.assertEqual([reply.get("error", {}).get("code") for reply in replies],
+                         [-32700, None])
+        self.assertEqual(replies[1]["id"], 2)
+        self.assertEqual(replies[1]["result"], {})
+        self.assertNotIn(b"Traceback", child.stderr)
+
+    @unittest.skipUnless(hasattr(sys, "get_int_max_str_digits"),
+                         "Python interpreter has no JSON integer digit limit")
+    def test_stdio_integer_limit_returns_parse_error_and_keeps_next_request(self):
+        env = os.environ.copy()
+        env["PYTHONPATH"] = str(ROOT / "src")
+        env["PYTHONINTMAXSTRDIGITS"] = "4300"
+        oversized_integer = (
+            b'{"jsonrpc":"2.0","id":3,"method":"ping","params":{"number":'
+            + b"9" * 5000 + b"}}\n"
+        )
+        ping_four = b'{"jsonrpc":"2.0","id":4,"method":"ping"}\n'
+        child = subprocess.run(
+            [sys.executable, "-m", "rpk_php2shell_triage.mcp_stdio"],
+            input=oversized_integer + ping_four,
+            capture_output=True, timeout=10, env=env,
+        )
+        self.assertEqual(child.returncode, 0)
+        replies = [json.loads(line) for line in child.stdout.splitlines()]
+        self.assertEqual([reply.get("error", {}).get("code") for reply in replies],
+                         [-32700, None])
+        self.assertEqual(replies[1]["id"], 4)
+        self.assertEqual(replies[1]["result"], {})
+        self.assertNotIn(b"Traceback", child.stderr)
 
     def test_stdio_handshake_and_tools(self):
         env = os.environ.copy()

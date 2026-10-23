@@ -92,7 +92,7 @@ def main(argv: list[str] | None = None) -> int:
         code = "case_file_io_error"
     except UnicodeError:
         code = "case_file_encoding_error"
-    except json.JSONDecodeError:
+    except (json.JSONDecodeError, RecursionError):
         code = "case_file_json_error"
     except ValueError:
         code = "invalid_case"
