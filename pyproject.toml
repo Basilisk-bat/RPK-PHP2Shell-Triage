@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rpk-php2shell-triage"
+version = "0.1.0"
+description = "Offline, evidence-bound triage for PHP2Shell affected PHP runtimes"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+license = "Apache-2.0 AND MIT"
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md", "LICENSE-DECISION.md", "PROVENANCE.md"]
+
+[project.scripts]
+rpk-php2shell-triage = "rpk_php2shell_triage.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,10 @@
+{
+  "case_id": "synthetic-header-only-20261022",
+  "target": {"label": "Synthetic header observation"},
+  "runtime": {
+    "version": "8.5.11",
+    "channel": "unknown",
+    "evidence_kind": "http_header",
+    "observed_at": "2026-10-22T00:00:00Z"
+  }
+}

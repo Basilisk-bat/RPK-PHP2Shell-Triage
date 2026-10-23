@@ -1,0 +1,13 @@
+{
+  "case_id": "synthetic-fixed-worker-20261022",
+  "target": {"label": "Synthetic training worker"},
+  "runtime": {
+    "version": "8.5.12",
+    "channel": "upstream",
+    "evidence_kind": "serving_process",
+    "observed_at": "2026-10-22T00:00:00Z",
+    "pid": 4242,
+    "executable_path": "C:\\lab\\php\\php-cgi.exe",
+    "sapi": "cgi-fcgi"
+  }
+}
