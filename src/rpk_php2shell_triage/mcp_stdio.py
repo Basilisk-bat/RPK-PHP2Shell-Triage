@@ -113,14 +113,15 @@ def main() -> int:
             continue
         try:
             request = json.loads(line.decode("utf-8"))
-            response = dispatch(request)
-            if response is not None:
-                sys.stdout.write(json.dumps(response, separators=(",", ":")) + "\n")
-                sys.stdout.flush()
-        except (UnicodeError, json.JSONDecodeError):
+        except (UnicodeError, json.JSONDecodeError, RecursionError, ValueError):
             print("MCP input parse error", file=sys.stderr)
             response = {"jsonrpc": "2.0", "id": None,
                         "error": {"code": -32700, "message": "Parse error"}}
+            sys.stdout.write(json.dumps(response, separators=(",", ":")) + "\n")
+            sys.stdout.flush()
+            continue
+        response = dispatch(request)
+        if response is not None:
             sys.stdout.write(json.dumps(response, separators=(",", ":")) + "\n")
             sys.stdout.flush()
     return 0
