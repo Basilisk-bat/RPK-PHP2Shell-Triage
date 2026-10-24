@@ -18,7 +18,7 @@ PROTOCOL = "2025-11-25"
 TOOLS = [
     {
         "name": "rpk_php2shell_catalog",
-        "description": "Return the reviewed upstream fixed-release snapshot for CVE-2026-109618 and CVE-2026-109619. It does not fetch current vendor status.",
+        "description": "Return the reviewed fixed-release snapshot for CVE-2026-109618 and CVE-2026-109619, plus a separate advisory notice for CVE-2026-115560. It does not fetch current vendor status or assess the separate issue.",
         "inputSchema": {"type": "object", "properties": {}, "additionalProperties": False},
     },
     {

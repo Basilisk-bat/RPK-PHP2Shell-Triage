@@ -2,7 +2,15 @@
 
 RPK-authored contributions use Apache License 2.0. Adapted Eric Mann indicator fragments retain his MIT notice. See [LICENSE-DECISION.md](LICENSE-DECISION.md), [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), and [PROVENANCE.md](PROVENANCE.md) for the scope of each license and the source history.
 
-This local tool classifies evidence supplied for CVE-2026-109618 and CVE-2026-109619. It helps an operator decide what to inspect or update. Its code initiates no network client request, scans no target, and changes no service. Its first catalog snapshot uses the [PHP 21 October 2026 release](https://www.php.net/archive/2026.php#2026-10-21-5) and the linked PHP security advisories for [CVE-2026-109618](https://github.com/php/php-src/security/advisories/GHSA-6wmf-4rv5-p3rp) and [CVE-2026-109619](https://github.com/php/php-src/security/advisories/GHSA-w8hw-w9fx-j79w). Vendor status must be rechecked at decision time.
+This local tool classifies evidence supplied for CVE-2026-109618 and CVE-2026-109619. It helps an operator decide what to inspect or update. Its code initiates no network client request, scans no target, and changes no service. Its first catalog snapshot uses the [PHP 21 October 2026 release](https://www.php.net/archive/2026.php#2026-10-21-5) and the linked PHP security advisories for [CVE-2026-109618](https://github.com/php/php-src/security/advisories/GHSA-w8hw-w9fx-j79w) and [CVE-2026-109619](https://github.com/php/php-src/security/advisories/GHSA-6wmf-4rv5-p3rp). Vendor status must be rechecked at decision time.
+
+## Related session advisory (reviewed 24 October 2026)
+
+PHP's [23 October 2026 notice for CVE-2026-115560](https://www.php.net/archive/2026.php#2026-10-23-1) describes a separate, unlikely remote-code-execution path. It requires all of these conditions: `session.upload_progress.enabled` is still enabled; the application configures `session.serialize_handler` as `php_binary` or `php_serialize`; and application code switches that handler to `php` with `ini_set()` before calling `session_start()`. Applications that do not switch the serialization handler at runtime are not exposed to this path under the published conditions.
+
+PHP suggests setting `session.upload_progress.enabled=0` until the next regular bugfix release. Keep that setting in place if it was already applied for CVE-2026-109619. Verify the effective setting on the actual serving workers after a restart, using startup configuration that applies before request parsing; the setting is not a substitute for the fixes for CVE-2026-109618 or CVE-2026-109619. The [Canadian Cyber Centre's 23 October update](https://www.cyber.gc.ca/en/alerts-advisories/al26-026-critical-vulnerabilities-impacting-php-cve-2026-109618-cve-2026-109619) explicitly says the 21 October PHP releases do not address CVE-2026-115560.
+
+The CLI, library, and MCP assessment verdicts and their fixed-release table cover **only CVE-2026-109618 and CVE-2026-109619**. A `fixed_release_reported` or `vendor_revision_match_reported` result does not establish a fix for CVE-2026-115560. The catalog lists the separate notice for operator awareness; it does not assess the application's handler changes or the effective upload-progress setting. Recheck PHP's advisory and any vendor release before making a later fix claim.
 
 ## Run locally
 
