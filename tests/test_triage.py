@@ -158,6 +158,13 @@ class TriageTests(unittest.TestCase):
         catalog = fixed_release_catalog()
         self.assertEqual(set(catalog["cves"]), {"CVE-2026-109618", "CVE-2026-109619"})
         self.assertEqual(catalog["upstream_fixed_releases"]["8.5"], "8.5.12")
+        related = catalog["related_advisories"]
+        self.assertEqual(related[0]["cve"], "CVE-2026-115560")
+        self.assertNotIn("CVE-2026-115560", catalog["cves"])
+        self.assertNotIn("fixed_releases", related[0])
+        conditions = " ".join(related[0]["published_preconditions"])
+        for required in ("session.upload_progress.enabled", "php_binary", "php_serialize", "ini_set()", "session_start()"):
+            self.assertIn(required, conditions)
 
     def test_oversized_mcp_line_is_drained_before_next_message(self):
         stream = io.BufferedReader(io.BytesIO(b"a" * 300000 + b"\n" + b'{"jsonrpc":"2.0","id":4,"method":"ping"}\n'))

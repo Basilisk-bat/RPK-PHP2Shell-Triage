@@ -14,8 +14,8 @@ CVES = ("CVE-2026-109618", "CVE-2026-109619")
 FIXED = {(8, 2): (8, 2, 35), (8, 3): (8, 3, 36), (8, 4): (8, 4, 27), (8, 5): (8, 5, 12)}
 SOURCES = (
     "https://www.php.net/archive/2026.php#2026-10-21-5",
-    "https://github.com/php/php-src/security/advisories/GHSA-6wmf-4rv5-p3rp",
     "https://github.com/php/php-src/security/advisories/GHSA-w8hw-w9fx-j79w",
+    "https://github.com/php/php-src/security/advisories/GHSA-6wmf-4rv5-p3rp",
 )
 _VERSION = re.compile(r"^(\d+)\.(\d+)\.(\d+)$")
 _CASE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
@@ -36,7 +36,28 @@ def fixed_release_catalog() -> dict[str, Any]:
         "cves": list(CVES),
         "upstream_fixed_releases": {f"{a}.{b}": ".".join(map(str, v)) for (a, b), v in FIXED.items()},
         "sources": list(SOURCES),
-        "scope": "Upstream PHP releases; vendor backports and running processes require separate evidence.",
+        "scope": (
+            "Fixed releases and assessment verdicts cover CVE-2026-109618 and CVE-2026-109619 only; "
+            "vendor backports and running processes require separate evidence."
+        ),
+        "related_advisories": [
+            {
+                "cve": "CVE-2026-115560",
+                "reviewed_at": "2026-10-24",
+                "source": "https://www.php.net/archive/2026.php#2026-10-23-1",
+                "status": (
+                    "As of 2026-10-24, the 2026-10-21 fixed releases do not address this issue; "
+                    "PHP plans a full advisory with its next regular bugfix release."
+                ),
+                "published_preconditions": [
+                    "session.upload_progress.enabled is enabled",
+                    "session.serialize_handler is configured as php_binary or php_serialize",
+                    "application code switches the handler to php with ini_set() before session_start()",
+                ],
+                "interim_mitigation": "Set session.upload_progress.enabled=0 until the next regular bugfix release.",
+                "assessment": "Not assessed by this tool; inspect application flow and effective serving-worker configuration.",
+            }
+        ],
     }
 
 

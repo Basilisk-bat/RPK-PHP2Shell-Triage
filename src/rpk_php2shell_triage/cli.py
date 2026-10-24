@@ -54,7 +54,7 @@ def main(argv: list[str] | None = None) -> int:
         return _main_ioc(argv[1:])
     parser = _PrivateArgumentParser(description="Offline PHP2Shell evidence triage")
     sub = parser.add_subparsers(dest="command", required=True)
-    sub.add_parser("catalog", help="Print the reviewed upstream fixed-release snapshot")
+    sub.add_parser("catalog", help="Print the reviewed fixed-release snapshot and separate advisory notice")
     sub.add_parser("ioc", help="Review explicit local saved error logs (see ioc --help)")
     assess = sub.add_parser("assess", help="Assess a caller-provided local JSON case")
     assess.add_argument("case_file", type=Path)
